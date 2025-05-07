@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>BIS Scheduler Tasks - Manage</title>
+    <link rel="stylesheet" href="manage.css">
+    <!-- manage.js als ES Module einbinden -->
+    <script type="module" src="manage.js" defer></script>
+</head>
+<body>
+<div class="container">
+    <h1>BIS Scheduler Tasks - Manage</h1>
+    <p class="description">Führen Sie manuell Scheduler Tasks aus. Die unten aufgeführten Einträge lassen sich
+        verwalten, importieren oder exportieren.
+    </p>
+
+    <p class="description">
+        <strong>Lesen Sie die Hinweise:</strong>
+        <a href="#" id="infoBtn">Hier</a>
+    </p>
+
+    <div id="recordList" class="record-list"></div>
+
+    <div class="button-group">
+        <button id="deleteAllBtn">Alle Einträge löschen</button>
+        <button id="newRecordBtn">Neuer Eintrag</button>
+        <button id="importBtn">Import CSV</button>
+        <button id="exportBtn">Export CSV</button>
+        <input type="file" id="csvFileInput" style="display:none;" accept=".csv">
+    </div>
+</div>
+
+<!-- Hinweis-Modal -->
+<div id="infoModal" class="modal">
+    <div class="modal-content modal-content-info">
+        <h2>Hinweis</h2>
+        <p>
+            <strong>SEEBURGER BIS API:</strong>
+        </p>
+        <p>
+            Dieses Plugin verwendet die offizielle SEEBURGER BIS API des BIS-Servers. Der für die Ausführung von
+            Scheduler‑Tasks zuständige Endpunkt lautet:
+            <br><br>
+            <code>/scheduler-task/{identifier}/execution</code>
+            <br><br>
+            Anhand der Dokumentation gilt dabei folgender Implementierungshinweis:
+            "Execute an existing scheduler-task using the identifier provided in the url path."
+            <br><br>
+            Das bedeutet, dass zur Ausführung ein bereits existierender Scheduler‑Task anhand der in der URL angegebenen
+            Kennung (identifier) gestartet wird. Bitte stellen Sie sicher, dass Sie einen gültigen Identifier nutzen,
+            damit die API den Task korrekt ausführen kann.
+        </p>
+        <p>
+            <strong>TLS-Zertifikat:</strong>
+        </p>
+        <p>
+            Wenn Sie selbst signierte Zertifikate verwenden, beachten Sie bitte:
+        </p>
+        <ol>
+            <li>
+                Installieren Sie das Zertifikat in der Zertifikatsverwaltung Ihres Systems, um TLS-Fehler zu vermeiden.
+                <br>
+                Unter <strong>Windows</strong> öffnen Sie beispielsweise den Zertifikat-Manager, indem Sie die
+                Tastenkombination <em>Win+R</em> drücken,
+                <em>certmgr.msc</em> eingeben und Enter drücken. Navigieren Sie im linken Bereich zu
+                <br>
+                <em>"Vertrauenswürdige Stammzertifizierungsstellen → Zertifikate"</em>.
+                <br><br>
+                Klicken Sie mit der rechten Maustaste in diesen Ordner, wählen Sie
+                <br>
+                <em>"Alle Aufgaben" → "Importieren"</em>
+                <br><br>
+                und folgen Sie den Anweisungen des Assistenten.
+                Wählen Sie dabei das Zertifikat des SEEBURGER BIS Servers aus (z. B. aus einem Ordner wie <em>C:\Users\IhrBenutzer\IhrZertifikat.cer</em>)
+                und importieren Sie es.
+            </li>
+            <li>
+                Nutzen Sie alternativ einen Proxy – siehe Information unten.
+            </li>
+        </ol>
+
+        <p>
+            <strong>Proxy (nur für lokale und Testumgebungen):</strong>
+            Um Zertifikatsfehler zu umgehen, können Sie alternativ einen Proxy verwenden – beachten Sie bitte, dass dies
+            in Produktionsumgebungen ein Sicherheitsrisiko darstellen kann.
+        </p>
+        <p>
+            <a href="../assets/bis-proxy.zip" download="bis-proxy.zip" class="download-link">
+                Proxy.zip herunterladen
+            </a>
+        </p>
+        <p>
+            <strong>Anleitung:</strong>
+        </p>
+        <ol>
+            <li>Entpacken Sie die heruntergeladene ZIP-Datei.</li>
+            <li>Navigieren Sie in den entpackten Ordner.</li>
+            <li>Öffnen Sie eine Konsole und führen Sie <code>npm start</code> aus (Node.js muss installiert sein).</li>
+        </ol>
+        <p>
+            <strong>Records & Datenschutz:</strong><br>
+            Dieses Plugin speichert ausschließlich für den Betrieb notwendige, nicht-personenbezogene Daten – in Form
+            von Records. Alle Daten werden im Chrome Local Store abgelegt, der an die eindeutige Erweiterungs-ID
+            gebunden ist. Dadurch können andere Erweiterungen nicht auf diese Daten zugreifen. Zudem werden sämtliche im
+            Plugin gespeicherten Daten automatisch gelöscht, sobald das Plugin deinstalliert wird.
+        </p>
+        <div class="modal-buttons">
+            <button id="closeInfoModalBtn" class="btn">Schließen</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal zum Hinzufügen eines Records -->
+<div id="recordModal" class="modal">
+    <div class="modal-content">
+        <h2>Neuen Datensatz hinzufügen</h2>
+
+        <label for="modalName">Name:</label>
+        <input type="text" id="modalName" placeholder="Name">
+
+        <!-- Dropdown für Protokoll -->
+        <div class="scheme-group">
+            <label for="modalScheme">Protokoll:</label>
+            <select id="modalScheme">
+                <option value="https" selected>https</option>
+                <option value="http">http</option>
+            </select>
+        </div>
+
+        <!-- Basis URL ohne Protokoll, da dieses separat gewählt wird -->
+        <label for="modalBasisUrl">Basis URL:</label>
+        <input type="text" id="modalBasisUrl" placeholder="example.com">
+
+        <!-- Port -->
+        <label for="modalPort">Port:</label>
+        <input type="text" id="modalPort" placeholder="z.B. 14000">
+
+        <!-- Toggle Button für proxy an/aus -->
+        <div class="switch-group">
+            <label for="modalProxyToggle">Proxy verwenden:</label>
+            <label class="switch">
+                <input type="checkbox" id="modalProxyToggle" checked>
+                <span class="slider round"></span>
+            </label>
+        </div>
+
+        <label for="modalIdentifier">Identifier (Rest-ID):</label>
+        <input type="text" id="modalIdentifier" placeholder="Identifier (Rest-ID)">
+
+        <!-- Feld für Access Token -->
+        <label for="modalAccessToken">Access Token (optional):</label>
+        <input type="text" id="modalAccessToken" placeholder="API-Key e747dabb-5b77-dd54-8kl0-edstd8ed3fas">
+
+        <!-- Toggle Button für aktiv/inaktiv -->
+        <div class="switch-group">
+            <label for="modalActiveToggle">Aktiv:</label>
+            <label class="switch">
+                <input type="checkbox" id="modalActiveToggle" checked>
+                <span class="slider round"></span>
+            </label>
+        </div>
+
+        <div class="modal-buttons">
+            <button id="cancelModalBtn" class="btn btn-execute">Abbrechen</button>
+            <button id="saveModalBtn" class="btn">Speichern</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
