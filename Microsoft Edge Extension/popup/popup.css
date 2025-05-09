@@ -1,17 +1,19 @@
-@import "fonts/font.css";
+@import "../fonts/font.css";
 
 :root {
-    --font-family: "Jetbrains Mono", sans-serif;
+    --font-family: "Montserrat", sans-serif;
     --font-size-small: 0.75rem;
     --font-size-regular: 1rem;
-    --font-color-primary: #0f2d5c;
-    --font-color-secondary: #ccc;
+
     --bg-color-primary: #ffffff;
-    --bg-color-secondary: #edf9ff;
-    --bg-color-highlight: #d6efff;
+    --bg-color-secondary: var(--color-100);
+    --bg-color-highlight: var(--color-200);
+
     --btn-size: 36px;
-    --border-radius-small: 4px;
-    --border-radius-large: 9px;
+
+    --radius-sm: 4px;
+    --radius-lg: 9px;
+
     --padding-small: 4px;
     --padding-regular: 10px;
     --padding-horizontal: 20px;
@@ -35,7 +37,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: var(--padding-regular) var(--padding-horizontal);
-    border-bottom: solid 1px var(--font-color-secondary);
+    border-bottom: solid 1px #ccc;
 }
 
 .header h1 {
@@ -63,9 +65,9 @@ body {
 .card {
     background: var(--bg-color-primary);
     padding: var(--padding-regular);
-    border-radius: var(--border-radius-large);
+    border-radius: var(--radius-lg);
     margin-bottom: 0.5rem; /* 8px */
-    border-bottom: solid 1px var(--font-color-secondary);
+    border-bottom: solid 1px var(--color-400);
 }
 
 .card-row {
@@ -83,10 +85,10 @@ body {
 .tag {
     font-size: var(--font-size-small);
     background-color: var(--bg-color-highlight);
-    color: var(--font-color-primary);
+    color: var(--color-950);
     width: fit-content;
     padding: 2px 10px;
-    border-radius: var(--border-radius-large);
+    border-radius: var(--radius-lg);
     border: solid 1px #4cbfff;
     margin-left: -4px;
     margin-top: 4px;
@@ -98,7 +100,7 @@ body {
     cursor: pointer;
     width: var(--btn-size);
     height: var(--btn-size);
-    border-radius: var(--border-radius-large);
+    border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -108,17 +110,7 @@ body {
     background-color: var(--bg-color-highlight);
 }
 
-.records-button {
-    margin-top: var(--padding-small);
-    width: 100%;
-    background: var(--bg-color-primary);
-    border: 1px solid var(--font-color-secondary);
-    padding: 6px;
-    cursor: pointer;
-    border-radius: var(--border-radius-small);
-}
-
-.no-records-container {
+.no-tasks-container {
     display: flex;
     flex-direction: column;
     justify-content: center;

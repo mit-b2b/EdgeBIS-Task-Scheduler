@@ -2,16 +2,23 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>BIS Scheduler Tasks - Manage</title>
+    <title>EdgeBIS Task Scheduler - Manage</title>
     <link rel="stylesheet" href="manage.css">
     <!-- manage.js als ES Module einbinden -->
     <script type="module" src="manage.js" defer></script>
 </head>
 <body>
 <div class="container">
-    <h1>BIS Scheduler Tasks - Manage</h1>
-    <p class="description">Führen Sie manuell Scheduler Tasks aus. Die unten aufgeführten Einträge lassen sich
-        verwalten, importieren oder exportieren.
+    <h1>BIS Task Scheduler - Manage</h1>
+    <p class="description">
+        Führen Sie manuell Scheduler Tasks aus. Die unten aufgeführten
+        Einträge lassen sich verwalten, importieren oder exportieren.
+    </p>
+
+    <p class="description">
+        <strong>Wichtig</strong>: Bei selbst signierten Zertifikaten des BIS-Servers muss <strong>zwingend</strong>
+        das Zertifikat im Zertifikatsspeicher des Systems installiert sein. Detaillierte Informationen finden Sie in
+        weiter unten in den Hinweisen.
     </p>
 
     <p class="description">
@@ -23,10 +30,10 @@
 
     <div class="button-group">
         <button id="deleteAllBtn">Alle Einträge löschen</button>
-        <button id="newRecordBtn">Neuer Eintrag</button>
-        <button id="importBtn">Import CSV</button>
-        <button id="exportBtn">Export CSV</button>
-        <input type="file" id="csvFileInput" style="display:none;" accept=".csv">
+        <button id="newHostBtn" class="btn btn-primary">Neuer Host</button>
+        <button id="importBtn">Import</button>
+        <button id="exportBtn">Export</button>
+        <input type="file" id="jsonFileInput" style="display:none;" accept=".json">
     </div>
 </div>
 
@@ -55,48 +62,31 @@
         </p>
         <p>
             Wenn Sie selbst signierte Zertifikate verwenden, beachten Sie bitte:
+            <br><br>
+            Das selbst signierte Zertifikat muss im System installiert werden, damit die Browsererweiterung eine
+            sichere HTTPS-Verbindung zum Server herstellen kann, ohne dass TLS-Sicherheitswarnungen auftreten oder
+            Verbindungen abgelehnt werden.
         </p>
         <ol>
             <li>
-                Installieren Sie das Zertifikat in der Zertifikatsverwaltung Ihres Systems, um TLS-Fehler zu vermeiden.
-                <br>
+                Installieren Sie das Zertifikat in der Zertifikatsverwaltung (Computerzertifikate) Ihres Systems.
+                <br><br>
                 Unter <strong>Windows</strong> öffnen Sie beispielsweise den Zertifikat-Manager, indem Sie die
-                Tastenkombination <em>Win+R</em> drücken,
-                <em>certmgr.msc</em> eingeben und Enter drücken. Navigieren Sie im linken Bereich zu
+                Tastenkombination <strong>Win+R</strong> drücken,
+                <strong>certmgr.msc</strong> eingeben und Enter drücken. Navigieren Sie im linken Bereich zu
                 <br>
-                <em>"Vertrauenswürdige Stammzertifizierungsstellen → Zertifikate"</em>.
+                <strong>"Vertrauenswürdige Stammzertifizierungsstellen → Zertifikate"</strong>.
                 <br><br>
                 Klicken Sie mit der rechten Maustaste in diesen Ordner, wählen Sie
                 <br>
-                <em>"Alle Aufgaben" → "Importieren"</em>
+                <strong>"Alle Aufgaben" → "Importieren"</strong>
                 <br><br>
                 und folgen Sie den Anweisungen des Assistenten.
                 Wählen Sie dabei das Zertifikat des SEEBURGER BIS Servers aus (z. B. aus einem Ordner wie <em>C:\Users\IhrBenutzer\IhrZertifikat.cer</em>)
                 und importieren Sie es.
             </li>
-            <li>
-                Nutzen Sie alternativ einen Proxy – siehe Information unten.
-            </li>
         </ol>
 
-        <p>
-            <strong>Proxy (nur für lokale und Testumgebungen):</strong>
-            Um Zertifikatsfehler zu umgehen, können Sie alternativ einen Proxy verwenden – beachten Sie bitte, dass dies
-            in Produktionsumgebungen ein Sicherheitsrisiko darstellen kann.
-        </p>
-        <p>
-            <a href="../assets/bis-proxy.zip" download="bis-proxy.zip" class="download-link">
-                Proxy.zip herunterladen
-            </a>
-        </p>
-        <p>
-            <strong>Anleitung:</strong>
-        </p>
-        <ol>
-            <li>Entpacken Sie die heruntergeladene ZIP-Datei.</li>
-            <li>Navigieren Sie in den entpackten Ordner.</li>
-            <li>Öffnen Sie eine Konsole und führen Sie <code>npm start</code> aus (Node.js muss installiert sein).</li>
-        </ol>
         <p>
             <strong>Records & Datenschutz:</strong><br>
             Dieses Plugin speichert ausschließlich für den Betrieb notwendige, nicht-personenbezogene Daten – in Form
@@ -105,64 +95,92 @@
             Plugin gespeicherten Daten automatisch gelöscht, sobald das Plugin deinstalliert wird.
         </p>
         <div class="modal-buttons">
-            <button id="closeInfoModalBtn" class="btn">Schließen</button>
+            <button id="closeInfoModalBtn" class="btn btn-transparent">Schließen</button>
         </div>
     </div>
 </div>
 
-<!-- Modal zum Hinzufügen eines Records -->
-<div id="recordModal" class="modal">
+<!-- Modal zum Hinzufügen eines Hosts -->
+<div id="hostModal" class="modal">
     <div class="modal-content">
-        <h2>Neuen Datensatz hinzufügen</h2>
-
-        <label for="modalName">Name:</label>
-        <input type="text" id="modalName" placeholder="Name">
+        <h2>Neuen Host hinzufügen</h2>
 
         <!-- Dropdown für Protokoll -->
         <div class="scheme-group">
-            <label for="modalScheme">Protokoll:</label>
-            <select id="modalScheme">
+            <label for="hostModalScheme">Protokoll:</label>
+            <select id="hostModalScheme">
                 <option value="https" selected>https</option>
                 <option value="http">http</option>
             </select>
         </div>
 
         <!-- Basis URL ohne Protokoll, da dieses separat gewählt wird -->
-        <label for="modalBasisUrl">Basis URL:</label>
-        <input type="text" id="modalBasisUrl" placeholder="example.com">
+        <label for="hostModalBasisUrl">Basis URL:</label>
+        <input type="text" id="hostModalBasisUrl" placeholder="example.com">
 
         <!-- Port -->
-        <label for="modalPort">Port:</label>
-        <input type="text" id="modalPort" placeholder="z.B. 14000">
+        <label for="hostModalPort">Port:</label>
+        <input type="text" id="hostModalPort" placeholder="z.B. 14000">
+
+        <!-- Feld für Access Token -->
+        <label for="hostModalAccessToken">Access Token (optional):</label>
+        <input type="text" id="hostModalAccessToken" placeholder="API-Key e747dabb-5b77-dd54-8kl0-edstd8ed3fas">
+
+        <div class="modal-buttons">
+            <button id="cancelHostModalBtn" class="btn btn-transparent">Abbrechen</button>
+            <button id="saveHostModalBtn" class="btn btn-primary">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal zum Hinzufügen eines Tasks -->
+<div id="taskModal" class="modal">
+    <div class="modal-content">
+        <h2>Neuen Task hinzufügen</h2>
+
+        <label for="taskModalName">Name:</label>
+        <input type="text" id="taskModalName" placeholder="Name">
 
         <!-- Toggle Button für proxy an/aus -->
         <div class="switch-group">
-            <label for="modalProxyToggle">Proxy verwenden:</label>
+            <label for="taskModalProxyToggle">Proxy verwenden:</label>
             <label class="switch">
-                <input type="checkbox" id="modalProxyToggle" checked>
+                <input type="checkbox" id="taskModalProxyToggle" checked>
                 <span class="slider round"></span>
             </label>
         </div>
 
-        <label for="modalIdentifier">Identifier (Rest-ID):</label>
-        <input type="text" id="modalIdentifier" placeholder="Identifier (Rest-ID)">
-
-        <!-- Feld für Access Token -->
-        <label for="modalAccessToken">Access Token (optional):</label>
-        <input type="text" id="modalAccessToken" placeholder="API-Key e747dabb-5b77-dd54-8kl0-edstd8ed3fas">
+        <label for="taskModalIdentifier">Identifier (Rest-ID):</label>
+        <input type="text" id="taskModalIdentifier" placeholder="Identifier (Rest-ID)">
 
         <!-- Toggle Button für aktiv/inaktiv -->
         <div class="switch-group">
-            <label for="modalActiveToggle">Aktiv:</label>
+            <label for="taskModalActiveToggle">Aktiv:</label>
             <label class="switch">
-                <input type="checkbox" id="modalActiveToggle" checked>
+                <input type="checkbox" id="taskModalActiveToggle" checked>
                 <span class="slider round"></span>
             </label>
         </div>
 
         <div class="modal-buttons">
-            <button id="cancelModalBtn" class="btn btn-execute">Abbrechen</button>
-            <button id="saveModalBtn" class="btn">Speichern</button>
+            <button id="cancelTaskModalBtn" class="btn btn-transparent">Abbrechen</button>
+            <button id="saveTaskModalBtn" class="btn btn-primary">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal für die Scheduler-Task-Liste -->
+<div id="schedulerTasksModal" class="modal">
+    <div class="modal-content modal-content-wide">
+        <h2>Verfügbare Scheduler Tasks</h2>
+        <div class="search-container">
+            <label for="taskSearchInput">Suche:</label>
+            <input type="text" id="taskSearchInput" placeholder="Nach Name oder Identifier filtern...">
+        </div>
+        <div class="loader" id="schedulerTasksLoader">Lade Daten...</div>
+        <div id="schedulerTasksList" class="scheduler-tasks-list"></div>
+        <div class="modal-buttons">
+            <button id="closeSchedulerTasksModalBtn" class="btn">Schließen</button>
         </div>
     </div>
 </div>

@@ -1,4 +1,3 @@
-const PROXY_URL = 'http://localhost:3001/proxy';
 const STATUS_DESCRIPTIONS = {
     200: "Request successful.",
     201: "Resource created.",
@@ -46,29 +45,22 @@ const handleFetch = (url, options, sendResponse) => {
     fetch(url, options)
         .then(createResponseObject)
         .then(responseObject => sendResponse({ result: responseObject }))
-        .catch(error => sendResponse({ error: error.toString() }));
+        .catch(error => sendResponse({ error: error.toString() }))
 };
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'executeTask') {
-        const { scheme, basis_url, port, identifier, proxy, accessToken } = message.payload;
-        const targetUrl = `${ scheme }://${ basis_url }:${ port }/api/scheduler-task/${ identifier }/execution`;
+        const { identifier, accessToken, fullUrl } = message.payload;
+        const url = `${ fullUrl }/api/scheduler-task/${ identifier }/execution`;
 
-        if (proxy) {
-            const requestBody = JSON.stringify({ targetUrl, identifier, accessToken });
-            const options = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: requestBody
-            };
-            handleFetch(PROXY_URL, options, sendResponse);
-        } else {
-            const headers = new Headers();
-            headers.set('Accept', 'application/json');
-            headers.set('authorization', accessToken);
-
-            handleFetch(targetUrl, { method: 'POST', headers }, sendResponse);
-        }
+        handleFetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': accessToken,
+            }
+        }, sendResponse);
 
         return true; // sendResponse asynchron nutzen
     }
