@@ -198,10 +198,10 @@ async function warmupConnections(hosts) {
     const { statusMessage } = DOM_ELEMENTS;
 
     // Check whether the warm-up has already been performed in this browser session
-    const result = await chrome.storage.session.get(['warmupPerformedInSession']);
-    if (result.warmupPerformedInSession) {
-        return; // Warm-up has already been carried out in this session
-    }
+    // const result = await chrome.storage.session.get(['warmupPerformedInSession']);
+    // if (result.warmupPerformedInSession) {
+    //     return; // Warm-up has already been carried out in this session
+    // }
 
 
     if (!hosts || hosts.length === 0) {
