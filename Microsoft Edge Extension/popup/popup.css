@@ -82,6 +82,15 @@ body {
     margin: 0;
 }
 
+.info-wrapper h2 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    font-size: small;
+}
+
+
 .tag {
     font-size: var(--font-size-small);
     background-color: var(--bg-color-highlight);
@@ -94,17 +103,53 @@ body {
     margin-top: 4px;
 }
 
+
 .btn-icon {
     border: none;
     background: transparent;
     cursor: pointer;
     width: var(--btn-size);
     height: var(--btn-size);
+    min-width: var(--btn-size);
+    min-height: var(--btn-size);
     border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 4px;
 }
+
+.tooltip {
+    position: relative;
+}
+
+.tooltip::after {
+    content: 'Task ausführen';
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    /*transform: translateX(-20%);*/
+    transform: translateY(-10%);
+    background-color: var(--color-200);
+    color: var(--color-700);
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    z-index: 1;
+    margin-top: 5px;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.tooltip:hover::after {
+    visibility: visible;
+    opacity: 1;
+}
+
 
 .btn-icon:hover {
     background-color: var(--bg-color-highlight);

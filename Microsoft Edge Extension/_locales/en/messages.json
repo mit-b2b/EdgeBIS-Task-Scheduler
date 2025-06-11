@@ -1,0 +1,8 @@
+{
+  "extName": {
+    "message": "EdgeBIS Task Scheduler"
+  },
+  "extDesc": {
+    "message": "Run SEEBURGER BIS scheduler jobs right from Microsoft Edge – pick a host, review parameters, and trigger with one click."
+  }
+}

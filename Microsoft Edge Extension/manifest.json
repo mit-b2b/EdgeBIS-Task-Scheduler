@@ -1,10 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "EdgeBIS Task Scheduler",
+  "name": "__MSG_extName__",
+  "version": "2.0.0",
   "short_name": "EdgeBIS-TX",
   "author": "Michael Ratke",
-  "version": "2.0.0",
-  "description": "EdgeBIS Task Scheduler ist eine MicrosoftEdge-Erweiterung, mit der Sie direkt in Ihrem Browser manuell Tasks aus der Seeburger BIS Suite ausführen können. Dank nahtloser Anbindung an die BIS-API lassen sich wiederkehrende Job‑Aufträge ohne Umwege ausführen – ganz ohne zusätzliche Software. Einfach Task auswählen, Parameter prüfen und mit einem Klick auslösen.",
+  "description": "__MSG_extDesc__",
+  "default_locale": "de",
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
@@ -14,6 +15,12 @@
       "128": "icons/extension-icon128x128.png"
     },
     "default_locale": "de"
+  },
+  "icons": {
+    "16": "icons/extension-icon16x16.png",
+    "32": "icons/extension-icon32x32.png",
+    "48": "icons/extension-icon48x48.png",
+    "128": "icons/extension-icon128x128.png"
   },
   "background": {
     "service_worker": "background-scripts/background.js"
